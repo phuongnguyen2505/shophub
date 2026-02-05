@@ -4,13 +4,14 @@ import { Product } from '@/types';
 
 export interface CartItem extends Product {
     quantity: number;
+    finalPrice: number;
 }
 
 interface CartState {
     items: CartItem[];
-    addItem: (product: Product) => void;
-    removeItem: (productId: number) => void;
-    updateQuantity: (productId: number, quantity: number) => void;
+    addItem: (product: Product, finalPrice: number) => void;
+    removeItem: (id: number) => void;
+    updateQuantity: (id: number, quantity: number) => void;
     clearCart: () => void;
 }
 
@@ -18,19 +19,20 @@ export const useCartStore = create<CartState>()(
     persist(
         (set) => ({
             items: [],
-            addItem: (product) =>
+            addItem: (product: Product, finalPrice?: number) =>
                 set((state) => {
+                    const price = finalPrice || product.price;
                     const existingItem = state.items.find((item) => item.id === product.id);
                     if (existingItem) {
-                        const updatedItems = state.items.map((item) =>
-                            item.id === product.id
-                                ? { ...item, quantity: item.quantity + 1 }
-                                : item
-                        );
-                        return { items: updatedItems };
+                        existingItem.quantity += 1;
                     } else {
-                        return { items: [...state.items, { ...product, quantity: 1 }] };
+                        state.items.push({
+                            ...product,
+                            finalPrice: price,
+                            quantity: 1,
+                        });
                     }
+                    return state;
                 }),
             removeItem: (productId) =>
                 set((state) => ({
@@ -38,9 +40,11 @@ export const useCartStore = create<CartState>()(
                 })),
             updateQuantity: (productId, quantity) =>
                 set((state) => ({
-                    items: state.items.map((item) =>
-                        item.id === productId ? { ...item, quantity } : item
-                    ).filter(item => item.quantity > 0),
+                    items: state.items
+                        .map((item) =>
+                            item.id === productId ? { ...item, quantity } : item
+                        )
+                        .filter((item) => item.quantity > 0),
                 })),
             clearCart: () => set({ items: [] }),
         }),

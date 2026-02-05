@@ -1,3 +1,9 @@
+export interface Dimensions {
+    width: number;
+    height: number;
+    depth: number;
+}
+
 export interface Product {
     id: number;
     title: string;
@@ -10,6 +16,24 @@ export interface Product {
     category: string;
     thumbnail: string;
     images: string[];
+    weight?: number;
+    dimensions?: Dimensions;
+    warrantyInformation?: string;
+    shippingInformation?: string;
+    availabilityStatus?: string;
+    returnPolicy?: string;
+    minimumOrderQuantity?: number;
+    tags?: string[];
+    sku?: string;
+    reviews?: Review[];
+}
+
+export interface Review {
+    rating: number;
+    comment: string;
+    date: string;
+    reviewerName: string;
+    reviewerEmail: string;
 }
 
 export interface ProductsApiResponse {

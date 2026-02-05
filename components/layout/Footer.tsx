@@ -6,7 +6,7 @@ export default function Footer() {
                     Built with <a href="https://nextjs.org/" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-foreground">Next.js</a>
                 </p>
                 <p>
-                    &copy; {new Date().getFullYear()} Burning Bros. All rights reserved.
+                    &copy; {new Date().getFullYear()}  All rights reserved.
                 </p>
             </div>
         </footer>

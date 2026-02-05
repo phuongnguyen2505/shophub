@@ -1,6 +1,7 @@
 import { ProductsApiResponse, User } from '@/types';
 import axios from 'axios';
 import { AuthCredentials, AuthResponse } from '@/types';
+import { Product } from '@/types';
 
 const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -38,4 +39,24 @@ export const updateUser = async (userId: number, data: Partial<User>): Promise<U
         headers: { 'Content-Type': 'application/json' }
     });
     return response.data;
+};
+
+export const getProductById = async (id: string | number): Promise<Product | null> => {
+    try {
+        const response = await apiClient.get(`/products/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to fetch product with id ${id}:`, error);
+        return null;
+    }
+};
+
+export const getProductsByCategory = async (category: string, limit = 4): Promise<ProductsApiResponse> => {
+    try {
+        const response = await apiClient.get(`/products/category/${category}?limit=${limit}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to fetch products in category ${category}:`, error);
+        return { products: [], total: 0, skip: 0, limit: 0 };
+    }
 };

@@ -10,23 +10,29 @@ import { ChangeEvent } from 'react';
 export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart } = useCartStore();
 
-    const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalPrice = items.reduce((acc, item) => acc + (item.finalPrice || item.price) * item.quantity, 0);
+    const originalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalSavings = originalPrice - totalPrice;
+
     const handleQuantityChange = (e: ChangeEvent<HTMLInputElement>, itemId: number) => {
         const newQuantity = parseInt(e.target.value, 10);
         if (!isNaN(newQuantity) && newQuantity >= 0) {
             updateQuantity(itemId, newQuantity);
         }
     };
+
     const itemVariants = {
         initial: { opacity: 0, y: 20 },
         animate: { opacity: 1, y: 0 },
         exit: { opacity: 0, x: -50, transition: { duration: 0.3 } },
     };
+
     const handleClearCart = () => {
         if (window.confirm('Are you sure you want to remove all items from your cart?')) {
             clearCart();
         }
     };
+
     if (items.length === 0) {
         return (
             <div className="text-center">
@@ -48,48 +54,64 @@ export default function CartPage() {
                 <div className="md:col-span-2">
                     <motion.ul layout className="space-y-4">
                         <AnimatePresence>
-                            {items.map((item) => (
-                                <motion.li
-                                    layout
-                                    key={item.id}
-                                    variants={itemVariants}
-                                    initial="initial"
-                                    animate="animate"
-                                    exit="exit"
-                                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg"
-                                >
-                                    <Image src={item.thumbnail} alt={item.title} width={80} height={80} className="rounded-md object-cover flex-shrink-0" />
-                                    <div className="flex-grow">
-                                        <h2 className="font-semibold">{item.title}</h2>
-                                        <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <button title="Decrease quantity" onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-1 py-1 border rounded-md cursor-pointer hover:bg-muted">
-                                            <LuMinus className="w-5 h-5" />
+                            {items.map((item) => {
+                                const itemOriginalPrice = item.price;
+                                const itemFinalPrice = item.finalPrice || item.price;
+                                const itemSavings = itemOriginalPrice - itemFinalPrice;
+
+                                return (
+                                    <motion.li
+                                        layout
+                                        key={item.id}
+                                        variants={itemVariants}
+                                        initial="initial"
+                                        animate="animate"
+                                        exit="exit"
+                                        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg"
+                                    >
+                                        <Image src={item.thumbnail} alt={item.title} width={80} height={80} className="rounded-md object-cover flex-shrink-0" />
+                                        <div className="flex-grow">
+                                            <h2 className="font-semibold">{item.title}</h2>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <p className="text-sm font-semibold text-gray-900">${itemFinalPrice.toFixed(2)}</p>
+                                                {itemSavings > 0 && (
+                                                    <>
+                                                        <p className="text-sm text-gray-500 line-through">${itemOriginalPrice.toFixed(2)}</p>
+                                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                                            Save ${itemSavings.toFixed(2)}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button title="Decrease quantity" onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-1 py-1 border rounded-md cursor-pointer hover:bg-muted">
+                                                <LuMinus className="w-5 h-5" />
+                                            </button>
+                                            <input
+                                                placeholder='Quantity'
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(e) => handleQuantityChange(e, item.id)}
+                                                className="px-1 py-1 w-12 text-center border rounded-md"
+                                                min="0"
+                                            />
+                                            <button title="Increase quantity" onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-1 py-1 border rounded-md cursor-pointer hover:bg-muted">
+                                                <LuPlus className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                        <p className="font-semibold w-20 text-right">${(itemFinalPrice * item.quantity).toFixed(2)}</p>
+                                        <button title="Remove item" onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 cursor-pointer">
+                                            <LuTrash2 className='w-5 h-5' />
                                         </button>
-                                        <input
-                                            placeholder='Quantity'
-                                            type="number"
-                                            value={item.quantity}
-                                            onChange={(e) => handleQuantityChange(e, item.id)}
-                                            className="px-1 py-1 w-12 text-center border rounded-md"
-                                            min="0"
-                                        />
-                                        <button title="Increase quantity" onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-1 py-1 border rounded-md cursor-pointer hover:bg-muted">
-                                            <LuPlus className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                    <p className="font-semibold w-20 text-right">${(item.price * item.quantity).toFixed(2)}</p>
-                                    <button title="Remove item" onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 cursor-pointer">
-                                        <LuTrash2 className='w-5 h-5' />
-                                    </button>
-                                </motion.li>
-                            ))}
+                                    </motion.li>
+                                );
+                            })}
                         </AnimatePresence>
                     </motion.ul>
                     <button
                         onClick={handleClearCart}
-                        className="mt-4 text-sm text-muted-foreground text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                        className="mt-4 text-sm text-red-500 hover:text-red-700 transition-colors cursor-pointer"
                     >
                         Clear Cart
                     </button>
@@ -97,11 +119,19 @@ export default function CartPage() {
                 <div className="md:col-span-1">
                     <div className="p-4 bg-muted rounded-lg">
                         <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-                        <div className="flex justify-between mb-2">
-                            <span>Subtotal</span>
-                            <span>${totalPrice.toFixed(2)}</span>
+                        <div className="space-y-2 mb-4">
+                            <div className="flex justify-between text-sm">
+                                <span>Subtotal</span>
+                                <span>${originalPrice.toFixed(2)}</span>
+                            </div>
+                            {totalSavings > 0 && (
+                                <div className="flex justify-between text-sm text-green-600 font-semibold">
+                                    <span>Discount Savings</span>
+                                    <span>-${totalSavings.toFixed(2)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex justify-between mb-4">
+                        <div className="flex justify-between mb-2">
                             <span>Shipping</span>
                             <span className="text-green-500">Free</span>
                         </div>
