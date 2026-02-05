@@ -2,34 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { Product } from "@/types";
 import ProductDetailView from "@/components/ui/products/ProductDetailView";
+import { createProductSlug, extractIdFromSlug, calculateFinalPrice } from "@/utils/product";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL;
 const REVALIDATE_PRODUCT = 3600; // 1 hour
 const REVALIDATE_CATEGORY = 7200; // 2 hours
 const RELATED_PRODUCTS_LIMIT = 8;
-
-function titleToSlug(title: string): string {
-    return title
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-");
-}
-
-function extractIdFromSlug(slug: string): string {
-    const parts = slug.split("-");
-    return parts[parts.length - 1];
-}
-
-export function createProductSlug(product: Product): string {
-    return `${titleToSlug(product.title)}-${product.id}`;
-}
-
-function calculateFinalPrice(price: number, discountPercentage: number): number {
-    if (discountPercentage <= 0) return price;
-    return Math.round(price * (1 - discountPercentage / 100) * 100) / 100;
-}
 
 async function getProduct(id: string): Promise<Product> {
     const res = await fetch(`${API}/products/${id}`, {
@@ -71,7 +49,6 @@ export async function generateMetadata(
         const { id: slug } = await params;
         const id = extractIdFromSlug(slug);
         const product = await getProduct(id);
-        const finalPrice = calculateFinalPrice(product.price, product.discountPercentage);
 
         return {
             title: `${product.title} | BurningBros`,

@@ -6,13 +6,15 @@ import ProductCard from '@/components/ui/products/ProductCard';
 import { Product } from '@/types';
 import Link from 'next/link';
 
+type SortOption = 'price-asc' | 'price-desc' | 'rating' | 'newest';
+
 export default function CategoryPage() {
     const params = useParams();
     const slug = params.slug as string;
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'rating' | 'newest'>('newest');
+    const [sortBy, setSortBy] = useState<SortOption>('newest');
 
     const category = slug.replace(/-/g, ' ').toUpperCase();
 
@@ -92,7 +94,7 @@ export default function CategoryPage() {
                         <select
                             id="sort"
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as any)}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
                             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                         >
                             <option value="newest">Newest</option>

@@ -76,7 +76,7 @@ function ProductCard({ product }: ProductCardProps) {
                     <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
                         {product.brand}
                     </span>
-                    <span className="text-xs text-gray-500">{product.category}</span>
+                    <span className="text-xs capitalize text-gray-500">{product.category}</span>
                 </div>
                 <h3 id={`product-${product.id}`} className="text-base font-semibold text-gray-900 line-clamp-2">
                     <Link href={productUrl} className="hover:text-blue-600 transition-colors">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Product } from '@/types';
 import ProductCard from '@/components/ui/products/ProductCard';
@@ -18,31 +18,40 @@ export default function HomePage() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [searchResults, setSearchResults] = useState<Product[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const isSearchActive = searchResults !== null;
+
+  const loadMoreProducts = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch(`https://dummyjson.com/products?limit=${ITEMS_PER_PAGE}&skip=${offset}`);
+      const data = await response.json();
+      
+      if (data.products.length > 0) {
+        setProducts((prev) => [...prev, ...data.products]);
+        setOffset((prev) => prev + ITEMS_PER_PAGE);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, offset]);
 
   const { ref, inView } = useInView({ threshold: 0 });
 
-  const loadMoreProducts = async () => {
-    setIsLoadingMore(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const response = await fetch(`https://dummyjson.com/products?limit=${ITEMS_PER_PAGE}&skip=${offset}`);
-    const data = await response.json();
-    setIsLoadingMore(false);
-    if (data.products.length > 0) {
-      setProducts((prev) => [...prev, ...data.products]);
-      setOffset((prev) => prev + ITEMS_PER_PAGE);
-    } else {
-      setHasMore(false);
-    }
-  };
-
   useEffect(() => {
-    if (inView && hasMore && !debouncedSearchTerm && !isLoadingMore) {
+    if (inView && !isSearching && !isSearchActive) {
       loadMoreProducts();
     }
-  }, [inView, hasMore, debouncedSearchTerm, isLoadingMore]);
+  }, [inView, loadMoreProducts, isSearching, isSearchActive]);
 
   useEffect(() => {
     if (debouncedSearchTerm) {
@@ -62,7 +71,6 @@ export default function HomePage() {
   }, [debouncedSearchTerm]);
 
   const productsToDisplay = searchResults !== null ? searchResults : products;
-  const isSearchActive = searchResults !== null;
 
   return (
     <>
