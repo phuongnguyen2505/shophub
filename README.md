@@ -1,105 +1,88 @@
-E-commerce Application with Next.js
-This is an e-commerce application project built with Next.js and TypeScript. It fully simulates the features outlined in the project brief, including user authentication, product display, cart management, and a checkout process.
+# 🛒 E-commerce Application with Next.js
 
-Live Demo URL: https://burningbros.vercel.app/
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Zustand](https://img.shields.io/badge/Zustand-443E38?style=flat-square)](https://github.com/pmndrs/zustand)
 
-user: emilys
+A full-featured e-commerce simulation built with Next.js and TypeScript. This project implements user authentication, product browsing, cart management, and a complete checkout process.
 
-password: emilyspass
+🔗 **Live Demo:** [https://shuphob.vercel.app/](https://shuphob.vercel.app/)
 
+---
 
-credit card: 
+## 🔑 Test Credentials
 
-MasterCard 
+### User Account
+| Username | Password |
+| :--- | :--- |
+| `emilys` | `emilyspass` |
 
-5555-5555-5555-5555 
+### Credit Card Info
+| Type | Card Number | Expiry | CVV |
+| :--- | :--- | :--- | :--- |
+| **MasterCard** | `5555-5555-5555-5555` | `12/33` | `123` |
+| **VISA** | `4444-4444-4444-4444` | `12/33` | `123` |
 
-12/33 
+---
 
-CVV:123
+## 🛠 Tech Stack
 
-VISA 
+- **Framework:** Next.js (App Router), TypeScript
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **Form Handling:** React Hook Form & Zod
+- **Animations:** Framer Motion
 
-4444-4444-4444-4444 
+---
 
-12/33 
+## 🚀 Getting Started
 
-CVV:123
+### 1. Clone the repository
+```bash
+git clone https://github.com/phuongnguyen2505/shophub.git
+cd shophub
+```
 
-
-
-Tech Stack
-
-Framework: Next.js, TypeScript, Tailwind CSS
-
-State Management: Zustand
-
-Forms: React Hook Form & Zod
-
-Animations: Framer Motion
-
-
-1. How to run the project
-   
-   To run this project on your local machine, please follow these steps:
-
-Step 1: Clone repository
-
-git clone https://github.com/phuongnguyen2505/burningbros
-
-Step 2: Navigate to the project directory
-
-cd burningbros
-
-Step 3: Create environment file
-
-Create a file named .env in the root directory and add the following line to connect to the API:
-
+### 2. Environment Setup
+Create a `.env` file in the root directory:
+```env
 NEXT_PUBLIC_API_BASE_URL=https://dummyjson.com
+```
 
-Step 4: Install dependencies
-
+### 3. Install & Run
+```bash
+# Install dependencies
 npm install
-or
-yarn install
 
-Step 5: Run the development server
-
+# Start development server
 npm run dev
-or
-yarn dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-Now, open your browser and navigate to http://localhost:3000 to see the application.
+---
 
-2. Folder structure
-   
-├── app/                  # Contains the application's routes based on the App Router architecture.
+## 📂 Folder Structure
 
-├── components/           # Contains reusable React components.
+```text
+├── app/                # Application routes (App Router)
+├── components/         # React components
+│   ├── common/         # Atomic components (Button, Input)
+│   ├── layout/         # Layout-related (Navbar, Footer)
+│   └── ui/             # Feature-specific components
+├── context/            # React Context Providers
+├── hooks/              # Custom React hooks
+├── lib/                # API logic & validators
+├── store/              # Zustand state stores
+├── types/              # TypeScript interfaces
+└── utils/              # Helper functions
+```
 
-│     ├── common/           # General-purpose components (Button, Input, Icons...).
+---
 
-│     ├── layout/           # Structural layout components (Navbar, Footer, MainLayout...).
+## 💡 Challenges & Solutions
 
-│     └── ui/               # Feature-specific components (ProductCard...).
+*   **Static Build Failures:** Fixed `NextRouter` mounting issues by enforcing dynamic rendering for routes utilizing client-side hooks in shared layouts.
+*   **Checkout Race Condition:** Resolved navigation issues by moving the `clearCart()` action to the success page, ensuring the cart persists until the order is confirmed.
+*   **Dependency Stability:** Addressed build instability by downgrading from experimental versions (Next.js 15/React 19) to the latest stable releases.
 
-├── context/              # Contains React Context Providers (e.g., AppProviders).
-
-├── hooks/                # Contains custom hooks (e.g., useDebounce).
-
-├── lib/                  # Contains core logic, more complex helpers (e.g., api.ts, validators.ts).
-
-├── store/                # Contains Zustand stores for global state management.
-
-├── types/                # Contains TypeScript definitions (interfaces).
-
-└── utils/                # Contains small, reusable utility functions (e.g., cardUtils.ts).
-
-
-3. Challenges & Solutions
-
-Static Build Failures: Resolved NextRouter was not mounted errors during the build process by enforcing dynamic rendering (SSR) for the entire application, which solved the conflict between the client-side useRouter hook in the shared layout and Next.js's default static generation.
-
-Checkout Race Condition: Fixed a bug where users were redirected to the homepage instead of the success page after checkout. The solution was to move the clearCart() action from the checkout page to the success page, ensuring it only executes after the navigation is complete.
-
-Dependency Instability: Overcame initial project instability and build failures by downgrading core dependencies from experimental versions (e.g., Next.js 15, React 19) to the latest stable releases, ensuring a reliable development environment.
